@@ -4,6 +4,10 @@ import 'package:fluffychat/pages/forward/forward_web_view.dart';
 import 'package:fluffychat/presentation/enum/chat/media_viewer_popup_result_enum.dart';
 import 'package:fluffychat/presentation/mixins/save_media_to_gallery_android_mixin.dart';
 import 'package:fluffychat/presentation/model/pop_result_from_forward.dart';
+import 'package:fluffychat/pages/chat_details/chat_details_navigator.dart';
+import 'package:fluffychat/utils/dialog/twake_dialog.dart';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:flutter_gen/gen_l10n/l10n.dart';
 import 'package:fluffychat/utils/extension/build_context_extension.dart';
 import 'package:fluffychat/utils/platform_infos.dart';
 import 'package:fluffychat/utils/responsive/responsive_utils.dart';
@@ -165,4 +169,48 @@ mixin MediaViewerAppBarMixin on SaveMediaToGalleryAndroidMixin {
     Event? event,
   ) =>
       event?.shareFile(context);
+
+  void openAllMedia(
+    BuildContext context,
+    Event? event,
+  ) {
+    if (event == null) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChatDetailsNavigator(
+          roomId: event.room.id,
+          isInStack: true,
+        ),
+      ),
+    );
+  }
+
+  void deleteEvent(
+    BuildContext context,
+    Event? event,
+  ) async {
+    if (event == null) return;
+    final confirmed = await showOkCancelAlertDialog(
+          useRootNavigator: false,
+          context: context,
+          title: L10n.of(context)!.messageWillBeRemovedWarning,
+          okLabel: L10n.of(context)!.remove,
+          cancelLabel: L10n.of(context)!.cancel,
+        ) ==
+        OkCancelResult.ok;
+    if (!confirmed) return;
+    await TwakeDialog.showFutureLoadingDialogFullScreen(
+      future: () async {
+        if (event.status.isSent) {
+          if (event.canRedact) {
+            await event.redactEvent();
+          } else {
+            await Event.fromJson(event.toJson(), event.room).redactEvent();
+          }
+        } else {
+          await event.remove();
+        }
+      },
+    );
+  }
 }

@@ -50,6 +50,35 @@ class MediaViewerAppbarView extends StatelessWidget {
                         color: LinagoraSysColors.material().onPrimary,
                         tooltip: L10n.of(context)!.back,
                       ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (controller.widget.event != null)
+                            Text(
+                              controller.widget.event!.originServerTs
+                                  .localizedTime(context),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: LinagoraSysColors.material()
+                                        .onPrimary,
+                                  ),
+                            ),
+                          if (controller.currentIndex != null &&
+                              controller.totalCount != null)
+                            Text(
+                              '${controller.currentIndex} of ${controller.totalCount}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: LinagoraSysColors.material()
+                                        .onPrimary,
+                                  ),
+                            ),
+                        ],
+                      ),
                       Row(
                         children: [
                           if (PlatformInfos.isMobile)
@@ -121,9 +150,34 @@ class MediaViewerAppbarView extends StatelessWidget {
                                       },
                                     ),
                                     ContextMenuItemImageViewer(
+                                      title: L10n.of(context)!.showAllMedia,
+                                      icon: Icons.photo_library_outlined,
+                                      onTap: () => controller.openAllMedia(
+                                        context,
+                                        controller.widget.event,
+                                      ),
+                                    ),
+                                    ContextMenuItemImageViewer(
                                       title: L10n.of(context)!.showInChat,
                                       imagePath: ImagePaths.icShowInChat,
                                       onTap: () => controller.showInChat(
+                                        context,
+                                        controller.widget.event,
+                                      ),
+                                      haveDivider: false,
+                                    ),
+                                    ContextMenuItemImageViewer(
+                                      icon: Icons.share,
+                                      title: L10n.of(context)!.share,
+                                      onTap: () => controller.shareFileAction(
+                                        context,
+                                        controller.widget.event,
+                                      ),
+                                    ),
+                                    ContextMenuItemImageViewer(
+                                      icon: Icons.delete_outline,
+                                      title: L10n.of(context)!.delete,
+                                      onTap: () => controller.deleteEvent(
                                         context,
                                         controller.widget.event,
                                       ),

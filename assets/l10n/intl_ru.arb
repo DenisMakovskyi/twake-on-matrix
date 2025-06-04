@@ -3048,6 +3048,7 @@
   "@phone": {},
   "saveToGallery": "Сохранить в \"Галерею\"",
   "@saveToGallery": {},
+  "showAllMedia": "Показать все медиа",
   "saveFileToGalleryError": "Не удалось сохранить файл в \"Галерею\"",
   "@saveFileToGalleryError": {},
   "copiedPublicKeyToClipboard": "Открытый ключ скопирован в буфер обмена.",

@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:fluffychat/pages/image_viewer/image_viewer.dart';
+import 'package:fluffychat/pages/image_viewer/image_gallery_page.dart';
 import 'package:fluffychat/presentation/enum/chat/media_viewer_popup_result_enum.dart';
 import 'package:fluffychat/utils/extension/build_context_extension.dart';
 import 'package:fluffychat/utils/extension/mime_type_extension.dart';
-import 'package:fluffychat/utils/interactive_viewer_gallery.dart';
 import 'package:fluffychat/utils/matrix_sdk_extensions/download_file_extension.dart';
 import 'package:fluffychat/utils/matrix_sdk_extensions/event_extension.dart';
 import 'package:fluffychat/utils/matrix_sdk_extensions/matrix_file_extension.dart';
@@ -236,14 +236,20 @@ class _MxcImageState extends State<MxcImage> {
   void _onTap(BuildContext context) async {
     if (widget.onTapPreview != null) {
       widget.onTapPreview!();
-      final result =
-          await Navigator.of(context, rootNavigator: PlatformInfos.isWeb).push(
+      final roomEvents = widget.event!.room.timeline.events
+          .where((e) => e.messageType == MessageTypes.Image)
+          .toList();
+      final initial =
+          roomEvents.indexWhere((e) => e.eventId == widget.event!.eventId);
+      final result = await Navigator.of(
+        context,
+        rootNavigator: PlatformInfos.isWeb,
+      ).push(
         HeroPageRoute(
           builder: (context) {
-            return InteractiveViewerGallery(
-              itemBuilder: ImageViewer(
-                event: widget.event!,
-              ),
+            return ImageGalleryPage(
+              events: roomEvents,
+              initialIndex: initial < 0 ? 0 : initial,
             );
           },
         ),

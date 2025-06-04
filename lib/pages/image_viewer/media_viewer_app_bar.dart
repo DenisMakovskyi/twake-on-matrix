@@ -13,11 +13,15 @@ class MediaViewerAppBar extends StatefulWidget {
     this.showAppbarPreviewNotifier,
     this.event,
     this.enablePaddingAppbar = true,
+    this.currentIndex,
+    this.totalCount,
   });
 
   final ValueNotifier<bool>? showAppbarPreviewNotifier;
   final Event? event;
   final bool? enablePaddingAppbar;
+  final int? currentIndex;
+  final int? totalCount;
 
   static final responsiveUtils = getIt.get<ResponsiveUtils>();
 
@@ -31,6 +35,9 @@ class MediaViewerAppBarController extends State<MediaViewerAppBar>
         SaveMediaToGalleryAndroidMixin,
         MediaViewerAppBarMixin {
   ValueNotifier<bool>? showAppbarPreview;
+
+  int? get currentIndex => widget.currentIndex;
+  int? get totalCount => widget.totalCount;
 
   @override
   void initState() {
