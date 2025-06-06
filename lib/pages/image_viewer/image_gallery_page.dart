@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:matrix/matrix.dart';
 
+import '../../utils/platform_infos.dart';
 import 'image_viewer.dart';
 import 'media_viewer_app_bar.dart';
 
@@ -52,7 +53,13 @@ class _ImageGalleryPageState extends State<ImageGalleryPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
-        onTap: _toggleAppBar,
+        onTap: () {
+          if (PlatformInfos.isWeb) {
+            Navigator.of(context).pop();
+          } else {
+            _toggleAppBar();
+          }
+        },
         child: Stack(
           children: [
             PageView.builder(

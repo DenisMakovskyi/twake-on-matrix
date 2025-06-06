@@ -236,7 +236,8 @@ class _MxcImageState extends State<MxcImage> {
   void _onTap(BuildContext context) async {
     if (widget.onTapPreview != null) {
       widget.onTapPreview!();
-      final roomEvents = widget.event!.room.timeline.events
+      final timeline = await widget.event!.room.getTimeline();
+      final roomEvents = timeline.events
           .where((e) => e.messageType == MessageTypes.Image)
           .toList();
       final initial =

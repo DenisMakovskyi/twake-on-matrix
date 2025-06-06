@@ -1,6 +1,7 @@
 import 'package:fluffychat/pages/image_viewer/image_viewer_style.dart';
 import 'package:fluffychat/pages/image_viewer/media_viewer_app_bar.dart';
 import 'package:fluffychat/pages/image_viewer/media_viewer_app_bar_style.dart';
+import 'package:fluffychat/utils/date_time_extension.dart';
 import 'package:fluffychat/utils/platform_infos.dart';
 import 'package:fluffychat/widgets/mixins/popup_menu_widget_style.dart';
 import 'package:flutter/material.dart';
@@ -44,9 +45,7 @@ class MediaViewerAppbarView extends StatelessWidget {
                               : Icons.close,
                           color: LinagoraSysColors.material().onPrimary,
                         ),
-                        onPressed: () => controller.onClose(
-                          context,
-                        ),
+                        onPressed: () => controller.onClose(context),
                         color: LinagoraSysColors.material().onPrimary,
                         tooltip: L10n.of(context)!.back,
                       ),
@@ -55,27 +54,19 @@ class MediaViewerAppbarView extends StatelessWidget {
                         children: [
                           if (controller.widget.event != null)
                             Text(
-                              controller.widget.event!.originServerTs
-                                  .localizedTime(context),
+                              controller.widget.event!.originServerTs.localizedTime(context),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(
-                                    color: LinagoraSysColors.material()
-                                        .onPrimary,
-                                  ),
+                                  ?.copyWith(color: LinagoraSysColors.material().onPrimary,),
                             ),
-                          if (controller.currentIndex != null &&
-                              controller.totalCount != null)
+                          if (controller.currentIndex != null && controller.totalCount != null)
                             Text(
                               '${controller.currentIndex} of ${controller.totalCount}',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(
-                                    color: LinagoraSysColors.material()
-                                        .onPrimary,
-                                  ),
+                                  ?.copyWith(color: LinagoraSysColors.material().onPrimary,),
                             ),
                         ],
                       ),
