@@ -36,6 +36,7 @@ typedef ContextMenuBuilder = List<Widget> Function(BuildContext context);
 
 class MessageContentWithTimestampBuilder extends StatefulWidget {
   final Event event;
+  final MatrixState? matrixState;
   final Event? nextEvent;
   final void Function(Event)? onSelect;
   final void Function(String)? scrollToEventId;
@@ -54,6 +55,8 @@ class MessageContentWithTimestampBuilder extends StatefulWidget {
   final OnPickEmojiReactionAction? onPickEmojiReaction;
   final void Function(Event)? onLongPressMessage;
   final void Function(Event)? onReply;
+  final void Function(Event)? onEdit;
+  final void Function(BuildContext, Event)? onDelete;
   final void Function(Event)? onForward;
   final void Function(Event)? onCopy;
   final void Function(Event)? onPin;
@@ -68,6 +71,7 @@ class MessageContentWithTimestampBuilder extends StatefulWidget {
   const MessageContentWithTimestampBuilder({
     super.key,
     required this.event,
+    this.matrixState,
     this.nextEvent,
     this.onSelect,
     this.scrollToEventId,
@@ -85,6 +89,8 @@ class MessageContentWithTimestampBuilder extends StatefulWidget {
     this.onSendEmojiReaction,
     this.onPickEmojiReaction,
     this.onReply,
+    this.onEdit,
+    this.onDelete,
     this.onForward,
     this.onCopy,
     this.onLongPressMessage,
@@ -110,6 +116,9 @@ class _MessageContentWithTimestampBuilderState
         ],
         MessageContextMenuAction.forward,
         MessageContextMenuAction.copy,
+        if (event.canEditEvents(widget.matrixState)) ...[
+          MessageContextMenuAction.edit,
+        ],
         MessageContextMenuAction.select,
         MessageContextMenuAction.pin,
         if (PlatformInfos.isAndroid) ...[
@@ -118,6 +127,7 @@ class _MessageContentWithTimestampBuilderState
         ],
         if (event.isVideoOrImage && !PlatformInfos.isWeb)
           MessageContextMenuAction.saveToGallery,
+        if (event.canDelete) MessageContextMenuAction.delete,
       ];
 
   @override
@@ -371,44 +381,23 @@ class _MessageContentWithTimestampBuilderState
                                                             event,
                                                           ),
                                                           itemTheme:
-                                                              PullDownMenuItemTheme(
-                                                            textStyle: context
-                                                                .textTheme
-                                                                .bodyLarge!
-                                                                .copyWith(
-                                                              color: LinagoraRefColors
-                                                                      .material()
-                                                                  .neutral[30],
-                                                            ),
+                                                              _themeContextMenu(
+                                                            item,
                                                           ),
                                                           icon: item
                                                               .getIcon(event),
                                                           onTap: () => item
                                                               .onTap(context),
                                                           iconWidget:
-                                                              item.imagePath(
-                                                                        event,
-                                                                      ) !=
-                                                                      null
-                                                                  ? SvgPicture
-                                                                      .asset(
-                                                                      item.imagePath(
-                                                                            event,
-                                                                          ) ??
-                                                                          '',
-                                                                      width: 24,
-                                                                      height:
-                                                                          24,
-                                                                      colorFilter:
-                                                                          ColorFilter
-                                                                              .mode(
-                                                                        LinagoraRefColors.material()
-                                                                            .neutral[30]!,
-                                                                        BlendMode
-                                                                            .srcIn,
-                                                                      ),
-                                                                    )
-                                                                  : null,
+                                                              _iconContextMenu(
+                                                            event,
+                                                            item,
+                                                          ),
+                                                          iconColor:
+                                                              item.getIconColor(
+                                                            context,
+                                                            event,
+                                                          ),
                                                         ),
                                                       )
                                                       .toList(),
@@ -426,7 +415,7 @@ class _MessageContentWithTimestampBuilderState
                           },
                         ),
                       ).then((result) {
-                        _handleResultFromHeroPage(result);
+                        _handleResultFromHeroPage(context, result);
                         widget.onHideEmojiReaction?.call();
                       });
                     }
@@ -467,6 +456,7 @@ class _MessageContentWithTimestampBuilderState
   }
 
   void _handleResultFromHeroPage(
+    BuildContext context,
     dynamic result,
   ) {
     if (result is String) {
@@ -491,6 +481,12 @@ class _MessageContentWithTimestampBuilderState
           break;
         case 'saveToGallery':
           widget.saveToGallery?.call(widget.event);
+          break;
+        case 'edit':
+          widget.onEdit?.call(widget.event);
+          break;
+        case 'delete':
+          widget.onDelete?.call(context, widget.event);
           break;
       }
     }
@@ -771,5 +767,38 @@ class _MessageContentWithTimestampBuilderState
         ),
       ),
     );
+  }
+
+  Color? _textContextMenuColor(MessageContextMenuAction action) {
+    return action == MessageContextMenuAction.delete
+        ? LinagoraSysColors.material().error
+        : LinagoraRefColors.material().neutral[30];
+  }
+
+  PullDownMenuItemTheme _themeContextMenu(MessageContextMenuAction action) {
+    return PullDownMenuItemTheme(
+      textStyle: context.textTheme.bodyLarge!.copyWith(
+        color: _textContextMenuColor(
+          action,
+        ),
+      ),
+    );
+  }
+
+  Widget? _iconContextMenu(Event event, MessageContextMenuAction item) {
+    return item.imagePath(event) != null
+        ? SvgPicture.asset(
+            item.imagePath(
+                  event,
+                ) ??
+                '',
+            width: 24,
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              LinagoraRefColors.material().neutral[30]!,
+              BlendMode.srcIn,
+            ),
+          )
+        : null;
   }
 }
